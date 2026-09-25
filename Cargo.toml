@@ -1,0 +1,14 @@
+[package]
+name = "llvm-truncf-benchmark"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fearless_simd = "1.0.0"
+fearless_simd_macros = "0.1.0"
+rand = "0.10.3"
+rand_chacha = "0.10.0"
+
+[profile.test]
+# test do a lot of number crunching
+opt-level = 1
