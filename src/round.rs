@@ -7,8 +7,8 @@ pub fn round_sse2_f32(x: f32) -> f32 {
     let abs = x.abs();
 
     // Determine which values to return unchanged
-    const INT_THRESHOLD: i32 = f32::to_bits(2147483648.0) as i32;
-    let return_unchanged = abs.to_bits() as i32 >= INT_THRESHOLD;
+    const THRESHOLD: f32 = 2147483648.0;
+    let return_trunc = abs <= THRESHOLD;
 
     // bias for rounding
     const BIAS: f32 = f32::next_down(0.5);
@@ -18,7 +18,7 @@ pub fn round_sse2_f32(x: f32) -> f32 {
     let abs_trunc = (abs_biased as i32) as f32;
     let trunc = abs_trunc.copysign(x);
 
-    if return_unchanged { x } else { trunc }
+    if return_trunc { trunc } else { x }
 }
 
 #[inline]
@@ -28,10 +28,8 @@ pub fn round_sse2_f32x4(x: f32x4<Sse2>) -> f32x4<Sse2> {
     let abs = x.abs();
 
     // Determine which values to return unchanged
-    const INT_THRESHOLD: i32 = f32::to_bits(2147483648.0) as i32;
-    let return_unchanged = abs
-        .bitcast::<i32x4<Sse2>>()
-        .simd_ge(i32x4::splat(x.simd, INT_THRESHOLD));
+    const THRESHOLD: f32 = 2147483648.0;
+    let return_trunc = abs.simd_le(THRESHOLD);
 
     // bias for rounding
     const BIAS: f32 = f32::next_down(0.5);
@@ -41,7 +39,7 @@ pub fn round_sse2_f32x4(x: f32x4<Sse2>) -> f32x4<Sse2> {
     let abs_trunc: f32x4<Sse2> = i32x4::truncate_from(abs_biased).to_float();
     let trunc = abs_trunc.copysign(x);
 
-    return_unchanged.select(x, trunc)
+    return_trunc.select(trunc, x)
 }
 
 #[inline]
@@ -50,8 +48,8 @@ pub fn round_sse2_f64(x: f64) -> f64 {
     let abs = x.abs();
 
     // Determine which values to return unchanged
-    const INT_THRESHOLD: i64 = f64::to_bits(9223372036854775808.0) as i64;
-    let return_unchanged = abs.to_bits() as i64 >= INT_THRESHOLD;
+    const THRESHOLD: f64 = 9223372036854775808.0;
+    let return_trunc = abs <= THRESHOLD;
 
     // bias for rounding
     const BIAS: f64 = f64::next_down(0.5);
@@ -61,7 +59,7 @@ pub fn round_sse2_f64(x: f64) -> f64 {
     let abs_trunc = (abs_biased as i64) as f64;
     let trunc = abs_trunc.copysign(x);
 
-    if return_unchanged { x } else { trunc }
+    if return_trunc { trunc } else { x }
 }
 
 #[inline]
@@ -71,10 +69,8 @@ pub fn round_sse2_f64x2(x: f64x2<Sse2>) -> f64x2<Sse2> {
     let abs = x.abs();
 
     // Determine which values to return unchanged
-    const INT_THRESHOLD: i64 = f64::to_bits(9223372036854775808.0) as i64;
-    let return_unchanged = abs
-        .bitcast::<i64x2<Sse2>>()
-        .simd_ge(i64x2::splat(x.simd, INT_THRESHOLD));
+    const THRESHOLD: f64 = 9223372036854775808.0;
+    let return_trunc = abs.simd_le(THRESHOLD);
 
     // bias for rounding
     const BIAS: f64 = f64::next_down(0.5);
@@ -84,7 +80,7 @@ pub fn round_sse2_f64x2(x: f64x2<Sse2>) -> f64x2<Sse2> {
     let abs_trunc: f64x2<Sse2> = i64x2::truncate_from(abs_biased).to_float();
     let trunc = abs_trunc.copysign(x);
 
-    return_unchanged.select(x, trunc)
+    return_trunc.select(trunc, x)
 }
 
 #[cfg(test)]
