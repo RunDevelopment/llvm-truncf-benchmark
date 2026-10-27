@@ -1,6 +1,7 @@
 mod ceil;
 mod floor;
 mod round;
+mod round_ties_even;
 mod trunc;
 
 use std::{hint::black_box, io::Write, time::Duration};
@@ -11,6 +12,7 @@ use rand::prelude::*;
 use ceil::*;
 use floor::*;
 use round::*;
+use round_ties_even::*;
 use trunc::*;
 
 fn main() {
@@ -59,6 +61,14 @@ fn main() {
     bench("f64::ceil", &data_f64, scalar(f64::ceil));
     bench("ceil_sse2_f64", &data_f64, scalar(ceil_sse2_f64));
     bench("ceil_sse2_f64x2", &data_f64, sse2_f64x2(ceil_sse2_f64x2));
+    println!();
+    bench("f32::round_ties_even", &data_f32, scalar(f32::round_ties_even));
+    bench("round_ties_even_sse2_f32", &data_f32, scalar(round_ties_even_sse2_f32));
+    bench("round_ties_even_sse2_f32x4", &data_f32, sse2_f32x4(round_ties_even_sse2_f32x4));
+    println!();
+    bench("f64::round_ties_even", &data_f64, scalar(f64::round_ties_even));
+    bench("round_ties_even_sse2_f64", &data_f64, scalar(round_ties_even_sse2_f64));
+    bench("round_ties_even_sse2_f64x2", &data_f64, sse2_f64x2(round_ties_even_sse2_f64x2));
 }
 
 const WARM_UP: u32 = 100;
@@ -66,7 +76,7 @@ const ITERS: u32 = 100_000;
 const MAX_DURATION: Duration = Duration::from_millis(2_000);
 const LENGTHS: &[usize] = &[256, 512, 1024, 2048, 4096, 8192, 16384];
 fn bench<T: Copy>(name: &str, data: &[T], f: impl Fn(&[T], &mut [T])) {
-    print!("{name:<20}");
+    print!("{name:<24}");
     for &len in LENGTHS {
         // prepare input and output buffers
         let data = &data[..len];
@@ -97,7 +107,7 @@ fn bench<T: Copy>(name: &str, data: &[T], f: impl Fn(&[T], &mut [T])) {
     println!();
 }
 fn bench_headers() {
-    print!("{:<20}", "name");
+    print!("{:<24}", "name");
     for &len in LENGTHS {
         print!("{:>12}", len);
     }
