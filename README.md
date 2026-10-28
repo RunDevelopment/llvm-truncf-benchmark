@@ -10,6 +10,7 @@ I also provide variants which are hand-vectorizes using `fearless_simd`. This ca
 ## Usage
 
 Required software: Rust >= 1.87.0
+Requires hardware: Any x86 chip with SSE2 support (=any Intel/Amd chip released within the last 20 years)
 
 The following command will compile the program with optimizations and run the benchmark:
 
@@ -37,6 +38,8 @@ round_sse2_f32x4            69ns       139ns       273ns       534ns     1.095µ
 f64::round               2.483µs     5.091µs    10.374µs    13.683µs    29.301µs    61.317µs    125.24µs
 round_sse2_f64             343ns       652ns     1.336µs      2.98µs    12.223µs    32.332µs    72.655µs
 round_sse2_f64x2           259ns       504ns     1.003µs     1.996µs     3.987µs     7.938µs    15.892µs
+
+...
 ```
 
 - The left-most column is the name of the function benchmarked.
@@ -55,8 +58,11 @@ The above numbers were measured on the following system:
 Cargo.toml    # project config
 src/
     main.r s  # contains the benchmarking code
+    floor.rs  # floor implementations
+    ceil.rs   # ceil implementations
     trunc.rs  # truncation implementations
     round.rs  # rounding implementations
+    round_ties_even.rs  # round ties even implementations
 ```
 
 All algorithms are tested for correctness. Tests for float32 algorithms serve as proofs for correctness by virtue of testing all possible inputs against the reference implementation.
